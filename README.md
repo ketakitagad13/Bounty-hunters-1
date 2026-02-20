@@ -24,4 +24,4 @@ streamlit run app.py
 Deploy using Streamlit Cloud and add your OpenAI API key in Secrets.
 
 ## Live Demo
-PASTE_LINK_HERE
+https://bounty-hunters-1-dshjbjzez2bbxsh6ffruh8.streamlit.app/
