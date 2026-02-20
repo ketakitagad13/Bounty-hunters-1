@@ -1,36 +1,67 @@
-#Create a real time chat application with support for multiple rooms,typing indicators and message history
 import streamlit as st
-import time
-# Initialize session state for chat history and typing indicators
-if 'chat_history' not in st.session_state:
-    st.session_state.chat_history = {}
-if 'typing_indicators' not in st.session_state:
-    st.session_state.typing_indicators = {}
-# Function to handle sending messages
-def send_message(room, user, message):
-    if room not in st.session_state.chat_history:
-        st.session_state.chat_history[room] = []
-    st.session_state.chat_history[room].append((user, message))
-    st.session_state.typing_indicators[room] = False
-# Function to handle typing indicators
-def set_typing(room, user, is_typing):
-    if room not in st.session_state.typing_indicators:
-        st.session_state.typing_indicators[room] = {}
-    st.session_state.typing_indicators[room][user] = is_typing
-# Streamlit UI
-st.title("Real-Time Chat Application")
-room = st.text_input("Enter room name:")
+from openai import OpenAI
 
-if room:
-    user = st.text_input("Enter your name:")
-    message = st.text_input("Enter your message:")
-    if st.button("Send"):
-        send_message(room, user, message)
-    if st.session_state.typing_indicators.get(room):
-        st.write(f"{user} is typing...")
-    if room in st.session_state.chat_history:
-        for sender, msg in st.session_state.chat_history[room]:
-            st.write(f"{sender}: {msg}")
-    set_typing(room, user, True)
-    time.sleep(1)  # Simulate typing delay
-    set_typing(room, user, False)
+# ---------------- PAGE CONFIG ----------------
+st.set_page_config(
+    page_title="Viral Reel Script Writer",
+    page_icon="🎬",
+    layout="centered"
+)
+
+st.title("🎬 Viral Reel Script Writer")
+st.markdown("Turn boring topics into engaging 30-second viral reel scripts.")
+
+# ---------------- API SETUP ----------------
+client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
+
+# ---------------- USER INPUT ----------------
+topic = st.text_input("Enter a boring topic:")
+
+tone = st.selectbox(
+    "Select tone:",
+    ["Funny", "Motivational", "Educational", "Storytelling", "Dramatic"]
+)
+
+generate = st.button("Generate Viral Script 🚀")
+
+# ---------------- SCRIPT GENERATION ----------------
+def generate_script(topic, tone):
+    prompt = f"""
+You are a professional short-form content strategist.
+
+Create a 30-second Instagram Reel script for the topic: "{topic}"
+
+Tone: {tone}
+
+Structure:
+1. Strong hook (first 3 seconds)
+2. Engaging main content
+3. Clear call-to-action
+4. On-screen caption suggestions
+5. Music suggestion
+
+Keep it punchy, engaging, and optimized for virality.
+"""
+
+    response = client.chat.completions.create(
+        model="gpt-4o-mini",
+        messages=[{"role": "user", "content": prompt}],
+        temperature=0.8,
+    )
+
+    return response.choices[0].message.content
+
+
+# ---------------- OUTPUT ----------------
+if generate and topic.strip() != "":
+    with st.spinner("Crafting your viral script... ✨"):
+        script = generate_script(topic, tone)
+
+    st.success("Your Viral Script is Ready!")
+
+    st.markdown("### 📜 Script Output")
+    st.markdown(script)
+
+elif generate:
+    st.warning("Please enter a topic.")
+
