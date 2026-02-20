@@ -46,10 +46,11 @@ Structure:
 Make it highly engaging and optimized for virality.
 """
 
-    response = client.chat.completions.create(
-        model="llama3-8b-8192",  # Groq fast model
-        messages=[{"role": "user", "content": prompt}],
-        temperature=0.8,
+   response = client.chat.completions.create(
+   model="llama-3.1-8b-instant",
+    messages=[{"role": "user", "content": prompt}],
+    temperature=0.8,
+)
     )
 
     return response.choices[0].message.content
@@ -65,3 +66,4 @@ if generate and topic.strip() != "":
 
 elif generate:
     st.warning("Please enter a topic.")
+
