@@ -8,11 +8,14 @@ st.set_page_config(
     layout="centered"
 )
 
-st.title("🎬 Viral Reel Script Writer")
+st.title("Viral Reel Script Writer")
 st.markdown("Turn boring topics into engaging 30-second viral reel scripts.")
 
-# ---------------- API SETUP ----------------
-client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
+# ---------------- GROQ CLIENT ----------------
+client = OpenAI(
+    api_key=st.secrets["GROQ_API_KEY"],
+    base_url="https://api.groq.com/openai/v1"
+)
 
 # ---------------- USER INPUT ----------------
 topic = st.text_input("Enter a boring topic:")
@@ -22,7 +25,7 @@ tone = st.selectbox(
     ["Funny", "Motivational", "Educational", "Storytelling", "Dramatic"]
 )
 
-generate = st.button("Generate Viral Script 🚀")
+generate = st.button("Generate Viral Script")
 
 # ---------------- SCRIPT GENERATION ----------------
 def generate_script(topic, tone):
@@ -40,11 +43,11 @@ Structure:
 4. On-screen caption suggestions
 5. Music suggestion
 
-Keep it punchy, engaging, and optimized for virality.
+Make it highly engaging and optimized for virality.
 """
 
     response = client.chat.completions.create(
-        model="gpt-4o-mini",
+        model="llama3-8b-8192",  # Groq fast model
         messages=[{"role": "user", "content": prompt}],
         temperature=0.8,
     )
@@ -54,14 +57,11 @@ Keep it punchy, engaging, and optimized for virality.
 
 # ---------------- OUTPUT ----------------
 if generate and topic.strip() != "":
-    with st.spinner("Crafting your viral script... ✨"):
+    with st.spinner("Crafting your viral script..."):
         script = generate_script(topic, tone)
 
     st.success("Your Viral Script is Ready!")
-
-    st.markdown("### 📜 Script Output")
     st.markdown(script)
 
 elif generate:
     st.warning("Please enter a topic.")
-
